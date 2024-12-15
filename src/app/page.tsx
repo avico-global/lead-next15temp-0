@@ -9,7 +9,7 @@ import WhyChoose from "../../components/home/WhyChoose";
 
 export default function Home() {
   return (
-    <>
+    <div>
       <Navbar />
       <HomeBanner
         image={""}
@@ -18,12 +18,13 @@ export default function Home() {
           " Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihilimpedit quo minus id quod maxime placeat facere, viva la vida penci."
         }
       />
+      <p>test hello</p>
       <Services />
       <About />
       <CleaningService image={""} />
       <FeauturedService image={""} />
       <WhyChoose image={""} />
       <Footer image={""} />
-    </>
+    </div>
   );
 }
