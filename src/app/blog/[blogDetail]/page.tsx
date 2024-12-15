@@ -1,15 +1,13 @@
-import React from "react";
-import Navbar from "../../../../components/common/Navbar";
 import { blogs } from "../../../../components/json/blog";
+import Navbar from "../../../../components/common/Navbar";
+import { Link } from "lucide-react";
 import Footer from "../../../../components/common/Footer";
-import Link from "next/link";
 
-// Define types for the blog content and blog data
+// Define types
 interface BlogContent {
   heading: string;
   paragraph: string;
 }
-
 interface Blog {
   id: string;
   title: string;
@@ -18,16 +16,15 @@ interface Blog {
   content: BlogContent[];
 }
 
-// No need for `generateStaticParams` in this case, as params are automatically injected in dynamic routes
-
-export default function BlogDetail({
+// Page component
+export default async function BlogDetail({
   params,
 }: {
   params: { blogDetail: string };
 }) {
   const { blogDetail } = params;
 
-  // Find the blog from the static blogs data (can be fetched from an API or a database)
+  // Find the blog
   const blog = blogs.find((item: Blog) => item.id === blogDetail);
 
   if (!blog) {
@@ -78,7 +75,7 @@ export default function BlogDetail({
           </Link>
         </div>
       </div>
-      <Footer image={""} />
+      <Footer image={""} contact_details={""} />
     </>
   );
 }

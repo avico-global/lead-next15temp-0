@@ -16,16 +16,13 @@ export default function Home() {
       <HomeBanner
         image={""}
         title={"Cleaning Service"}
-        paragraph={
-          " Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihilimpedit quo minus id quod maxime placeat facere, viva la vida penci."
-        }
-      />
+        paragraph={" Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihilimpedit quo minus id quod maxime placeat facere, viva la vida penci."} imageTitle={""}      />
       <Services />
       <About />
       <CleaningService image={""} />
       <FeauturedService image={""} />
       <WhyChoose image={""} />
-      <Footer image={""} />
+      <Footer image={""} contact_details={""} />
     </>
   );
 }
