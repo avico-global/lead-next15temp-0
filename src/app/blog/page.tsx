@@ -25,7 +25,7 @@ interface BlogProps {
 
 const Blog: React.FC<BlogProps> = ({
   logo,
-  blog_list,
+  blog_list = [], // Default to an empty array
   imagePath,
   project_id,
   categories,
@@ -36,179 +36,125 @@ const Blog: React.FC<BlogProps> = ({
   contact_details,
   banner,
 }) => {
-    return (
+  return (
     <>
+      <Head>
+        <meta charSet="UTF-8" />
+        <title>{meta?.title}</title>
+        <meta name="description" content={meta?.description} />
+        <link rel="author" href={`http://${domain}`} />
+        <link rel="publisher" href={`http://${domain}`} />
+        <link rel="canonical" href={`http://${domain}`} />
+        <meta name="robots" content="noindex" />
+        <meta name="theme-color" content="#008DE5" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <GoogleTagManager />
+        <meta
+          name="google-site-verification"
+          content="zbriSQArMtpCR3s5simGqO5aZTDqEZZi9qwinSrsRPk"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={`https://api15.ecommcube.com/${domain}/apple-touch-icon.png`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={`https://api15.ecommcube.com/${domain}/favicon-32x32.png`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href={`https://api15.ecommcube.com/${domain}/favicon-16x16.png`}
+        />
+      </Head>
 
+      <Navbar />
+      <AboutBanner title={"Our Blog"} image={""} />
 
-    <Head>
-      <meta charSet="UTF-8" />
-      <title>{meta?.title}</title>
-      <meta name="description" content={meta?.description} />
-      <link rel="author" href={`http://${domain}`} />
-      <link rel="publisher" href={`http://${domain}`} />
-      <link rel="canonical" href={`http://${domain}`} />
-      <meta name="robots" content="noindex" />
-      <meta name="theme-color" content="#008DE5" />
-      <link rel="manifest" href="/manifest.json" />
-      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <GoogleTagManager />
-      <meta
-        name="google-site-verification"
-        content="zbriSQArMtpCR3s5simGqO5aZTDqEZZi9qwinSrsRPk" />
-      <link
-        rel="apple-touch-icon"
-        sizes="180x180"
-        href={`https://api15.ecommcube.com/${domain}/apple-touch-icon.png`} />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="32x32"
-        href={`https://api15.ecommcube.com/${domain}/favicon-32x32.png`} />
-      <link
-        rel="icon"
-        type="image/png"
-        sizes="16x16"
-        href={`https://api15.ecommcube.com/${domain}/favicon-16x16.png`} />
-    </Head>
-
-    <Navbar />
-    <AboutBanner title={"Our Blog"} image={""} />
-
-    <FullContainer className="  mx-auto max-w-[1300px] ">
-      <div className="  px-4 py-8">
-        <div className="grid lg:grid-cols-3">
-          {blogs.map((blog) => (
-            <div key={blog.id} className="   rounded-lg p-4">
-              {/* Image at the top */}
-              <div className="w-full mb-4">
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="rounded-lg object-cover w-full h-64" />
-              </div>
-              {/* Content below the image */}
-              <div className="text-start">
-                <h2 className="text-2xl font-semibold mb-2">{blog.title}</h2>
-                <p className="text-gray-500 mb-4">{blog.date}</p>
-                <Link
-                  href={`/blog/${blog.id}`}
-                  className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
-                >
-                  Read Blog
-                </Link>
-              </div>
+      <FullContainer className="mx-auto max-w-[1300px]">
+        <div className="px-4 py-8">
+          {blog_list.length > 0 ? (
+            <div className="grid lg:grid-cols-3 gap-6">
+              {blog_list.map((item) => (
+                <div key={item.id} className="rounded-lg p-4">
+                  {/* Image at the top */}
+                  <div className="w-full mb-4">
+                    <img
+                      src={item.image || "/default-image.jpg"} // Provide a fallback image
+                      alt={item.title || "Blog Image"}
+                      className="rounded-lg object-cover w-full h-64"
+                    />
+                  </div>
+                  {/* Content below the image */}
+                  <div className="text-start">
+                    <h2 className="text-2xl font-semibold mb-2">
+                      {item.title || "Untitled Blog"}
+                    </h2>
+                    <p className="text-gray-500 mb-4">{item.date || "Unknown Date"}</p>
+                    <Link
+                      href={`/blog/${item.id}`}
+                      className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+                    >
+                      Read Blog
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <p className="text-center text-gray-500">No blogs available at the moment.</p>
+          )}
         </div>
-      </div>
-    </FullContainer>
+      </FullContainer>
 
-    <Footer image={""} contact_details={""} />
+      <Footer image={""} />
 
-
-    <JsonLd
-      data={{
-        "@context": "https://schema.org",
-        "@graph": [
-          // {
-          //   "@type": "WebPage",
-          //   "@id": `http://${domain}/${category}`,
-          //   url: `http://${domain}/${category}`,
-          //   name: meta?.title,
-          //   isPartOf: {
-          //     "@id": `http://${domain}`,
-          //   },
-          //   description: meta?.description,
-          //   inLanguage: "en-US",
-          // },
-         
-          {
-            "@type": "Organization",
-            "@id": `http://${domain}`,
-            name: domain,
-            url: `http://${domain}/`,
-            logo: {
-              "@type": "ImageObject",
-              url: `${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${logo?.file_name}`,
-            },
-            sameAs: [
-              "http://www.facebook.com",
-              "http://www.twitter.com",
-              "http://instagram.com",
-            ],
-          },
-          {
-            "@type": "ItemList",
-            url: `http://${domain}`,
-            name: "blog",
-            itemListElement: blog_list?.map((blog, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              item: {
-                "@type": "Article",
-                url: `http://${domain}/${blog?.article_category?.name}/${blog.key}`,
-                name: blog.title,
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": `http://${domain}`,
+              name: domain,
+              url: `http://${domain}/`,
+              logo: {
+                "@type": "ImageObject",
+                url: `${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${logo?.file_name}`,
               },
-            })),
-          },
-        ],
-      }} />
-  </>
+              sameAs: [
+                "http://www.facebook.com",
+                "http://www.twitter.com",
+                "http://instagram.com",
+              ],
+            },
+            {
+              "@type": "ItemList",
+              url: `http://${domain}`,
+              name: "blog",
+              itemListElement: blog_list?.map((blog, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Article",
+                  url: `http://${domain}/${blog?.article_category?.name}/${blog.key}`,
+                  name: blog.title,
+                },
+              })),
+            },
+          ],
+        }}
+      />
+    </>
   );
 };
 
-
-// export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
-//   req,
-//   query,
-// }) => {
-//   const domain = getDomain(req?.headers?.host);
-
-//   const meta = await callBackendApi({ domain, query, type: "meta_home" });
-//   const logo = await callBackendApi({ domain, query, type: "logo" });
-//   const blog_list = await callBackendApi({ domain, query, type: "blog_list" });
-//   const categories = await callBackendApi({
-//     domain,
-//     query,
-//     type: "categories",
-//   });
-//   const contact_details = await callBackendApi({
-//     domain,
-//     query,
-//     type: "contact_details",
-//   });
-//   const about_me = await callBackendApi({ domain, query, type: "about_me" });
-//   const copyright = await callBackendApi({ domain, query, type: "copyright" });
-//   const banner = await callBackendApi({ domain, query, type: "banner" });
-
-//   let project_id = null;
-//   let imagePath = null;
-
-//   if (logo.project_id) {
-//     project_id = logo.project_id;
-//   } else if (query.project_id) {
-//     project_id = query.project_id;
-//   }
-
-//   imagePath = await getImagePath(project_id);
-
-//   return {
-//     props: {
-//       domain,
-//       imagePath,
-//       project_id: query.project_id ? project_id : null,
-//       logo: logo?.data[0],
-//       blog_list: blog_list.data[0].value,
-//       categories: categories?.data[0]?.value || null,
-//       meta: meta?.data[0]?.value || null,
-//       copyright: copyright.data[0].value || null,
-//       about_me: about_me.data[0] || null,
-//       banner: banner.data[0],
-//       contact_details: contact_details.data[0].value,
-//     },
-//   };
-// };
 
 
 export default Blog;

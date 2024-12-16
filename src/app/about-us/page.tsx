@@ -9,34 +9,82 @@ import Choose from "../../../components/about/Choose";
 import Footer from "../../../components/common/Footer";
 import Head from "next/head";
 import GoogleTagManager from "../../../lib/GoogleTagManager";
+import { callBackendApi, getDomain, getImagePath } from "../../../lib/myFun";
 
 interface AboutProps {
-  logo: any; // Replace 'any' with a more specific type if needed
-  blog_list: any[]; // Replace 'any' with a more specific type if needed
-  imagePath: string;
+  logo: any;
+  blog_list: any[];
+  imagePath: string | null;
   project_id: string | null;
-  categories: any; // Replace 'any' with a more specific type if needed
+  categories: any;
   domain: string;
-  meta: any; // Replace 'any' with a more specific type if needed
-  about_me: any; // Replace 'any' with a more specific type if needed
+  meta: any;
+  about_me: any;
   copyright: string;
-  contact_details: any; // Replace 'any' with a more specific type if needed
-  banner: any; // Replace 'any' with a more specific type if needed
+  contact_details: any;
+  banner: any;
+  about_company: any;
 }
 
-const About: React.FC<AboutProps> = ({
-  logo,
-  blog_list,
-  imagePath,
-  project_id,
-  categories,
-  domain,
-  meta,
-  about_me,
-  copyright,
-  contact_details,
-  banner,
+
+
+export async function fetchAboutData(
+  query: Record<string, string | undefined>
+): Promise<AboutProps> {
+  const domain = getDomain(query?.host || "");
+
+  // Simulate project_id retrieval
+  const project_id = "675a8a205afaa8130e5095ea"; // Replace with actual logic if needed
+
+
+  const logo = await callBackendApi({ domain, type: "logo" });
+  const blog_list = await callBackendApi({ domain, type: "blog_list" });
+  const categories = await callBackendApi({ domain, type: "categories" });
+  const contact_details = await callBackendApi({ domain, type: "contact_details" });
+  const about_me = await callBackendApi({ domain, type: "about_me" });
+  const copyright = await callBackendApi({ domain, type: "copyright" });
+  const meta = await callBackendApi({ domain, type: "meta_about" });
+  const banner = await callBackendApi({ domain, type: "banner" });
+  const about_company = await callBackendApi({ domain, type: "about_company" });
+  let imagePath = null;
+  imagePath = await getImagePath(project_id, domain);
+
+  return {
+    domain,
+    imagePath,
+    about_company,
+    project_id,
+    logo: logo ? logo[0] : null, // Safely access first element or set to null
+    blog_list: blog_list?.[0]?.value || null,
+    categories: categories?.[0]?.value || null,
+    meta: meta?.[0]?.value || null,
+    copyright: copyright?.[0]?.value || null,
+    about_me: about_me?.[0] || null,
+    banner: banner?.[0] || null,
+    contact_details: contact_details?.[0]?.value || null,
+  };
+}
+
+// Main Page Component
+const About = async ({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
 }) => {
+  const {
+    domain,
+    imagePath,
+    project_id,
+    logo,
+    blog_list,
+    categories,
+    meta,
+    about_me,
+    copyright,
+    contact_details,
+    banner,
+  } = await fetchAboutData(searchParams);
+
   return (
     <>
       <Head>
@@ -80,59 +128,9 @@ const About: React.FC<AboutProps> = ({
       <OurJourney />
       <OurNumbers />
       <Choose image="" />
-      <Footer image="" contact_details={""} />
+      <Footer image="" />
     </>
   );
 };
-// export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
-//   req,
-//   query,
-// }) => {
-//   const domain = getDomain(req?.headers?.host);
-
-//   const meta = await callBackendApi({ domain, query, type: "meta_home" });
-//   const logo = await callBackendApi({ domain, query, type: "logo" });
-//   const blog_list = await callBackendApi({ domain, query, type: "blog_list" });
-//   const categories = await callBackendApi({
-//     domain,
-//     query,
-//     type: "categories",
-//   });
-//   const contact_details = await callBackendApi({
-//     domain,
-//     query,
-//     type: "contact_details",
-//   });
-//   const about_me = await callBackendApi({ domain, query, type: "about_me" });
-//   const copyright = await callBackendApi({ domain, query, type: "copyright" });
-//   const banner = await callBackendApi({ domain, query, type: "banner" });
-
-//   let project_id = null;
-//   let imagePath = null;
-
-//   if (logo.project_id) {
-//     project_id = logo.project_id;
-//   } else if (query.project_id) {
-//     project_id = query.project_id;
-//   }
-
-//   imagePath = await getImagePath(project_id);
-
-//   return {
-//     props: {
-//       domain,
-//       imagePath,
-//       project_id: query.project_id ? project_id : null,
-//       logo: logo?.data[0],
-//       blog_list: blog_list.data[0].value,
-//       categories: categories?.data[0]?.value || null,
-//       meta: meta?.data[0]?.value || null,
-//       copyright: copyright.data[0].value || null,
-//       about_me: about_me.data[0] || null,
-//       banner: banner.data[0],
-//       contact_details: contact_details.data[0].value,
-//     },
-//   };
-// };
 
 export default About;

@@ -5,9 +5,10 @@ import FullContainer from "../common/FullContainer";
 import Link from "next/link";
 // Define prop types for data
 interface HomeBannerProps {
-  image: string;
-  title: string;
-  paragraph: string;
+  image: any;
+  title:string;
+  tagline:string;
+  imageTitle:string,
   data?: {
     opacity?: number;
     textColor?: string;
@@ -16,7 +17,8 @@ interface HomeBannerProps {
 }
 
 const HomeBanner: React.FC<HomeBannerProps> = ({
-  paragraph,
+ tagline,
+  imageTitle,
   title,
   image,
   data,
@@ -31,9 +33,9 @@ const HomeBanner: React.FC<HomeBannerProps> = ({
     >
       {/* Ensure image is passed correctly */}
       <Image
-        src={image || "/img/1.jpg"} // If image is not provided, fallback to "/img/1.jpg"
+        src={image} 
         alt="Banner Image"
-        title="Banner"
+        title={imageTitle}
         priority
         fill
         loading="eager"
@@ -53,7 +55,7 @@ const HomeBanner: React.FC<HomeBannerProps> = ({
               >
                 {title}
               </h1>
-              <p className=" mb-8 text-gray-600 ">{paragraph}</p>
+              <p className=" mb-8 text-gray-600 ">{tagline}</p>
             </div>
             <div className=" p-12 ">
               <div className=" px-4 py-4 bg-primary  w-44 -mt-20 rounded-md ">

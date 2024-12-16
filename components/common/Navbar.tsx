@@ -14,8 +14,9 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({
-  logo = "/img/logo.png",
+  logo = "",
   imagePath = "/img",
+
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -26,9 +27,10 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const getLinkClass = (path: string): string => {
     return pathname === path
-      ? "text-primary border-b"
+      ? "text-primary "
       : "text-black hover:text-primary ";
   };
+  console.log("Logo URL:", logo);
 
   return (
     <FullContainer className="bg-white sticky top-0 z-20 py-3 shadow-sm">
@@ -57,14 +59,14 @@ const Navbar: React.FC<NavbarProps> = ({
           <Link
             title="About Us"
             href="/about-us"
-            className={getLinkClass("/about")}
+            className={getLinkClass("/about-us")}
           >
             About Us
           </Link>
           <Link
-            title="FAQs"
+            title="our-services"
             href="/our-services"
-            className={getLinkClass("/faqs")}
+            className={getLinkClass("/our-services")}
           >
             Services
           </Link>
@@ -78,9 +80,9 @@ const Navbar: React.FC<NavbarProps> = ({
           <Link
             title="Blog"
             href="/blog"
-            className={getLinkClass("/blogs")}
+            className={getLinkClass("/blog")}
           >
-           Our Blog
+            Our Blog
           </Link>
         </div>
 

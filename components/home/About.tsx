@@ -5,24 +5,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 interface AboutProps {
+
+  image:any,
   data?: {
     titleFontSize?: number;
   };
 }
 
-const About: React.FC<AboutProps> = ({ data }) => {
+const About: React.FC<AboutProps> = ({ image, data }) => {
   return (
     <FullContainer className="relative ">
       <Container>
         {/* Set the background image using Tailwind classes */}
         <div className="">
           <Image
-            src="/img/clean.jpg"
+            src={image || "/img/clean.jpg"}
             width="1400"
             height="1000"
             alt="Banner Image"
             title="Banner"
-           
+
           />
         </div>
 
@@ -53,15 +55,15 @@ const About: React.FC<AboutProps> = ({ data }) => {
 
               {/* Contact Us Button */}
               <div className="">
-              <div className=" px-4 py-4 bg-primary  w-44  rounded-md ">
-                <Link
-                  href="/contact"
-                  className=" text-white flex justify-center text-center "
-                >
-                  Contact Us
-                </Link>
+                <div className=" px-4 py-4 bg-primary  w-44  rounded-md ">
+                  <Link
+                    href="/contact"
+                    className=" text-white flex justify-center text-center "
+                  >
+                    Contact Us
+                  </Link>
+                </div>
               </div>
-            </div>
             </div>
           </div>
 
@@ -73,7 +75,7 @@ const About: React.FC<AboutProps> = ({ data }) => {
               height="400"
               alt="Banner Image"
               title="Banner"
-              
+
             />
           </div>
         </div>

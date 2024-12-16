@@ -20,7 +20,7 @@ const FeaturedService: React.FC<HomeBannerProps> = ({ image, data }) => {
       <Container>
         {/* Header Section */}
         <div className="text-center mb-12">
-          5<h2 className="text-blue-500  text-lg font-semibold uppercase">
+          <h2 className="text-blue-500  text-lg font-semibold uppercase">
             Cleaning Service
           </h2>
           <h1

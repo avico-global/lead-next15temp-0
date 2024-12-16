@@ -6,7 +6,6 @@ import FeauturedService from "../../components/home/FeauturedService";
 import HomeBanner from "../../components/home/HomeBanner";
 import Services from "../../components/home/Services";
 import WhyChoose from "../../components/home/WhyChoose";
-import { GetServerSideProps } from "next";
 import { callBackendApi, getDomain, getImagePath } from "../../lib/myFun";
 import Head from "next/head";
 import GoogleTagManager from "../../lib/GoogleTagManager";
@@ -15,32 +14,80 @@ import About from "../../components/home/About";
 
 // Define types for the props
 interface HomeProps {
-  logo: any; // Replace 'any' with a more specific type if needed
-  blog_list: any[]; // Replace 'any' with a more specific type if needed
-  imagePath: string;
+  logo: any;
+  blog_list: any[];
+  imagePath: string | null;
   project_id: string | null;
-  categories: any; // Replace 'any' with a more specific type if needed
+  categories: any;
   domain: string;
-  meta: any; // Replace 'any' with a more specific type if needed
-  about_me: any; // Replace 'any' with a more specific type if needed
+  meta: any;
+  about_me: any;
   copyright: string;
-  contact_details: any; // Replace 'any' with a more specific type if needed
-  banner: any; // Replace 'any' with a more specific type if needed
+  contact_details: any;
+  banner: any;
+  about_company: any;
 }
 
-const Home: React.FC<HomeProps> = ({
-  logo,
-  blog_list,
-  imagePath,
-  project_id,
-  categories,
-  domain,
-  meta,
-  about_me,
-  copyright,
-  contact_details,
-  banner,
+
+
+export async function fetchHomeData(
+  query: Record<string, string | undefined>
+): Promise<HomeProps> {
+  const domain = getDomain(query?.host || "");
+
+  // Simulate project_id retrieval
+  const project_id = ""; // Replace with actual logic if needed
+
+
+  const logo = await callBackendApi({ domain, type: "logo" });
+  const blog_list = await callBackendApi({ domain, type: "blog_list" });
+  const categories = await callBackendApi({ domain, type: "categories" });
+  const contact_details = await callBackendApi({ domain, type: "contact_details" });
+  const about_me = await callBackendApi({ domain, type: "about_me" });
+  const copyright = await callBackendApi({ domain, type: "copyright" });
+  const meta = await callBackendApi({ domain, type: "meta_home" });
+  const banner = await callBackendApi({ domain, type: "banner" });
+  const about_company = await callBackendApi({ domain, type: "about_company" });
+let imagePath=null;
+  imagePath = await getImagePath(project_id, domain);
+
+  return {
+    domain,
+    imagePath,
+    about_company,
+    project_id,
+    logo: logo ? logo[0] : null, // Safely access first element or set to null
+    blog_list: blog_list?.[0]?.value || null,
+    categories: categories?.[0]?.value || null,
+    meta: meta?.[0]?.value || null,
+    copyright: copyright?.[0]?.value || null,
+    about_me: about_me?.[0] || null,
+    banner: banner?.[0] || null,
+    contact_details: contact_details?.[0]?.value || null,
+  };
+}
+
+// Main Page Component
+const Home = async ({
+  query,
+}: {
+  query: Record<string, string | undefined>;
 }) => {
+  const {
+    domain,
+    imagePath,
+    project_id,
+    logo,
+    blog_list,
+    categories,
+    meta,
+    about_me,
+    copyright,
+    contact_details,
+    banner,
+    about_company,
+  } = await fetchHomeData(query);
+
   return (
     <>
       <Head>
@@ -50,7 +97,6 @@ const Home: React.FC<HomeProps> = ({
         <link rel="author" href={`http://${domain}`} />
         <link rel="publisher" href={`http://${domain}`} />
         <link rel="canonical" href={`http://${domain}`} />
-        {/* <meta name="robots" content="noindex" /> */}
         <meta name="theme-color" content="#008DE5" />
         <link rel="manifest" href="/manifest.json" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -78,24 +124,23 @@ const Home: React.FC<HomeProps> = ({
           href={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${logo?.file_name}`}
         />
       </Head>
-      <Navbar />
+      <Navbar
+        logo={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${logo?.file_name}`}
+      />
       <HomeBanner
-        image={""}
-        title={"Cleaning Service"}
-        paragraph={
-          "Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihilimpedit quo minus id quod maxime placeat facere, viva la vida penci."
-        }
-        // imageTitle={""}
+        imageTitle={banner?.value?.imageTitle}
+        title={banner?.value?.title}
+        tagline={banner?.value?.tagline}
+        image={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${banner?.file_name}`}
       />
       <Services />
-      <About />
+      <About
+        image={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${about_company?.file_name}`}
+      />
       <CleaningService image={""} />
       <FeauturedService image={""} />
       <WhyChoose image={""} />
-      <Footer image={""}
-      //  contact_details={""} 
-       />
-
+      <Footer image={""} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -105,9 +150,7 @@ const Home: React.FC<HomeProps> = ({
               "@id": `http://${domain}/`,
               url: `http://${domain}/`,
               name: meta?.title,
-              isPartOf: {
-                "@id": `http://${domain}`,
-              },
+              isPartOf: { "@id": `http://${domain}` },
               description: meta?.description,
               inLanguage: "en-US",
             },
@@ -126,77 +169,11 @@ const Home: React.FC<HomeProps> = ({
                 "http://instagram.com",
               ],
             },
-            {
-              "@type": "ItemList",
-              url: `http://${domain}`,
-              name: "blog",
-              itemListElement: blog_list?.map((blog, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Article",
-                  url: `http://${domain}/${blog?.article_category?.name}/${blog.key}`,
-                  name: blog.title,
-                },
-              })),
-            },
           ],
         }}
       />
     </>
   );
 };
-
-// Define types for `getServerSideProps` return value
-// export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
-//   req,
-//   query,
-// }) => {
-//   const domain = getDomain(req?.headers?.host);
-
-//   const meta = await callBackendApi({ domain, query, type: "meta_home" });
-//   const logo = await callBackendApi({ domain, query, type: "logo" });
-//   const blog_list = await callBackendApi({ domain, query, type: "blog_list" });
-//   const categories = await callBackendApi({
-//     domain,
-//     query,
-//     type: "categories",
-//   });
-//   const contact_details = await callBackendApi({
-//     domain,
-//     query,
-//     type: "contact_details",
-//   });
-//   const about_me = await callBackendApi({ domain, query, type: "about_me" });
-//   const copyright = await callBackendApi({ domain, query, type: "copyright" });
-//   const banner = await callBackendApi({ domain, query, type: "banner" });
-
-//   let project_id = null;
-//   let imagePath = null;
-
-//   if (logo.project_id) {
-//     project_id = logo.project_id;
-//   } else if (query.project_id) {
-//     project_id = query.project_id;
-//   }
-
-//   imagePath = await getImagePath(project_id);
-
-//   return {
-//     props: {
-//       domain,
-//       imagePath,
-//       project_id: query.project_id ? project_id : null,
-//       logo: logo?.data[0],
-//       blog_list: blog_list.data[0].value,
-//       categories: categories?.data[0]?.value || null,
-//       meta: meta?.data[0]?.value || null,
-//       copyright: copyright.data[0].value || null,
-//       about_me: about_me.data[0] || null,
-//       banner: banner.data[0],
-//       contact_details: contact_details.data[0].value,
-//     },
-//   };
-// };
 
 export default Home;

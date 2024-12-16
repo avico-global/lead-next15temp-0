@@ -75,7 +75,7 @@ const OurServices: React.FC<ServiceProps> = ({
       <Navbar />
       <AboutBanner title={"Our Services"} image={""} />
       <FeauturedServices />
-      <Footer image={""} contact_details={""} />
+      <Footer image={""}  />
 
       <JsonLd
         data={{

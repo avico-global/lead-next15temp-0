@@ -9,7 +9,10 @@ export const cleanDomain = (domain: string | null | undefined): string | null | 
 };
 
 export const getDomain = (host: string | null | undefined): string => {
-  const defaultDomain = "abcUsama1122.usama";
+  // const defaultDomain = "abcUsama1122.usama";
+  const defaultDomain = "cleaning-service.amplifytest1.top";
+
+
   if (
     host &&
     !["localhost", "vercel", "amplifyapp.com", "amplifytest"].some((sub) =>
@@ -97,7 +100,7 @@ export const callBackendApi = async ({
   }
 };
 
-export const getImagePath = (project_id: string | null | undefined): string => {
+export const getImagePath = (project_id: any, domain: string) => {
   let image_path: string;
 
   if (project_id) {

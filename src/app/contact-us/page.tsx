@@ -8,38 +8,90 @@ import OpeningHour from '../../../components/contact/OpeningHour'
 import JsonLd from '../../../components/json/JsonLd'
 import Head from 'next/head';
 import GoogleTagManager from '../../../lib/GoogleTagManager'
+import { callBackendApi, getDomain, getImagePath } from "../../../lib/myFun";
+
 
 interface ContactProps {
-  logo: any; // Replace 'any' with a more specific type if needed
-  blog_list: any[]; // Replace 'any' with a more specific type if needed
-  imagePath: string;
+  logo: any;
+  blog_list: any[];
+  imagePath: string | null;
   project_id: string | null;
-  categories: any; // Replace 'any' with a more specific type if needed
+  categories: any;
   domain: string;
-  meta: any; // Replace 'any' with a more specific type if needed
-  about_me: any; // Replace 'any' with a more specific type if needed
+  meta: any;
+  about_me: any;
   copyright: string;
-  contact_details: any; // Replace 'any' with a more specific type if needed
-  banner: any; // Replace 'any' with a more specific type if needed
+  contact_details: any;
+  banner: any;
 }
 
-const Contact: React.FC<ContactProps> = ({
-  logo,
-  blog_list,
-  imagePath,
-  project_id,
-  categories,
-  domain,
-  meta,
-  about_me,
-  copyright,
-  contact_details,
-  banner,
+// Server-side data fetching (compatible with `page.tsx`)
+export async function fetchContactData(
+  searchParams: Record<string, string | undefined>
+): Promise<ContactProps> {
+  const domain = getDomain(searchParams?.host || "");
+
+  const [
+    logo,
+    blog_list,
+    categories,
+    contact_details,
+    about_me,
+    copyright,
+    meta,
+    banner,
+  ] = await Promise.all([
+    callBackendApi({ domain, query: searchParams, type: "logo" }),
+    callBackendApi({ domain, query: searchParams, type: "blog_list" }),
+    callBackendApi({ domain, query: searchParams, type: "categories" }),
+    callBackendApi({ domain, query: searchParams, type: "contact_details" }),
+    callBackendApi({ domain, query: searchParams, type: "about_me" }),
+    callBackendApi({ domain, query: searchParams, type: "copyright" }),
+    callBackendApi({ domain, query: searchParams, type: "meta_home" }),
+    callBackendApi({ domain, query: searchParams, type: "banner" }),
+  ]);
+
+  let projectId =null;
+  let imagePath = null;
+
+  return {
+    domain,
+    imagePath,
+    project_id: projectId,
+    logo: logo?.data[0],
+    blog_list: blog_list?.data[0]?.value || null,
+    categories: categories?.data[0]?.value || null,
+    meta: meta?.data[0]?.value || null,
+    copyright: copyright?.data[0]?.value || null,
+    about_me: about_me?.data[0] || null,
+    banner: banner?.data[0],
+    contact_details: contact_details?.data[0]?.value || null,
+  };
+}
+
+// Main Page Component
+const Contact = async ({
+  searchParams,
+}: {
+  searchParams: Record<string, string | undefined>;
 }) => {
+  const {
+    domain,
+    imagePath,
+    project_id,
+    logo,
+    blog_list,
+    categories,
+    meta,
+    about_me,
+    copyright,
+    contact_details,
+    banner,
+  } = await fetchContactData(searchParams);
   return (
     <>
-         
-         <Head>
+
+      <Head>
         <meta charSet="UTF-8" />
         <title>{meta?.title}</title>
         <meta name="description" content={meta?.description} />
@@ -75,11 +127,11 @@ const Contact: React.FC<ContactProps> = ({
         />
       </Head>
 
-      <Navbar/>
-      <AboutBanner title={"Contact Us"} image={''}/>
-      <Form/>
-      <OpeningHour/>
-      <Footer image={''} contact_details={''} />
+      <Navbar />
+      <AboutBanner title={"Contact Us"} image={''} />
+      <Form />
+      <OpeningHour />
+      <Footer image={''} />
 
 
       <JsonLd
@@ -116,7 +168,7 @@ const Contact: React.FC<ContactProps> = ({
               "@type": "ItemList",
               url: `http://${domain}`,
               name: "blog",
-              itemListElement: blog_list?.map((blog, index) => ({
+              itemListElement: blog_list?.map((blog: { article_category: { name: any; }; key: any; title: any; }, index: number) => ({
                 "@type": "ListItem",
                 position: index + 1,
                 item: {
@@ -132,56 +184,5 @@ const Contact: React.FC<ContactProps> = ({
     </>
   )
 }
-
-// export const getServerSideProps: GetServerSideProps<HomeProps> = async ({
-//   req,
-//   query,
-// }) => {
-//   const domain = getDomain(req?.headers?.host);
-
-//   const meta = await callBackendApi({ domain, query, type: "meta_home" });
-//   const logo = await callBackendApi({ domain, query, type: "logo" });
-//   const blog_list = await callBackendApi({ domain, query, type: "blog_list" });
-//   const categories = await callBackendApi({
-//     domain,
-//     query,
-//     type: "categories",
-//   });
-//   const contact_details = await callBackendApi({
-//     domain,
-//     query,
-//     type: "contact_details",
-//   });
-//   const about_me = await callBackendApi({ domain, query, type: "about_me" });
-//   const copyright = await callBackendApi({ domain, query, type: "copyright" });
-//   const banner = await callBackendApi({ domain, query, type: "banner" });
-
-//   let project_id = null;
-//   let imagePath = null;
-
-//   if (logo.project_id) {
-//     project_id = logo.project_id;
-//   } else if (query.project_id) {
-//     project_id = query.project_id;
-//   }
-
-//   imagePath = await getImagePath(project_id);
-
-//   return {
-//     props: {
-//       domain,
-//       imagePath,
-//       project_id: query.project_id ? project_id : null,
-//       logo: logo?.data[0],
-//       blog_list: blog_list.data[0].value,
-//       categories: categories?.data[0]?.value || null,
-//       meta: meta?.data[0]?.value || null,
-//       copyright: copyright.data[0].value || null,
-//       about_me: about_me.data[0] || null,
-//       banner: banner.data[0],
-//       contact_details: contact_details.data[0].value,
-//     },
-//   };
-// };
 
 export default Contact;
