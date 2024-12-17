@@ -1,13 +1,18 @@
-import { blogs } from "../../../../components/json/blog";
-import Navbar from "../../../../components/common/Navbar";
-import { Link } from "lucide-react";
-import Footer from "../../../../components/common/Footer";
 
-// Define types
+
+import React from "react";
+import { notFound } from "next/navigation"; // For handling 404
+import { blogs } from "../../../../components/json/blog"; // Adjust the path if needed
+import Navbar from "../../../../components/common/Navbar";
+import Footer from "../../../../components/common/Footer";
+import Link from "next/link";
+
+// Define Blog types
 interface BlogContent {
   heading: string;
   paragraph: string;
 }
+
 interface Blog {
   id: string;
   title: string;
@@ -16,66 +21,58 @@ interface Blog {
   content: BlogContent[];
 }
 
-// Page component
-export default async function BlogDetail({
-  params,
-}: {
-  params: { blogDetail: string };
-}) {
+// Dynamic Blog Detail Page
+export default function BlogDetail({ params }: { params: { blogDetail: string } }) {
   const { blogDetail } = params;
 
-  // Find the blog
-  const blog = blogs.find((item: Blog) => item.id === blogDetail);
+  // Find the specific blog by ID
+  const blog = blogs.find((item: Blog) => item.title === blogDetail);
 
+  // Handle 404 if the blog is not found
   if (!blog) {
-    return (
-      <div className="text-center py-20">
-        <h1 className="text-4xl font-bold">404 - Blog Not Found</h1>
-        <p className="text-gray-500 mt-4">
-          The blog you&apos;re looking for doesn&apos;t exist.
-        </p>
-      </div>
-    );
+    notFound();
   }
-
-  const content = blog.content || [];
 
   return (
     <>
       <Navbar />
-      <div className="max-w-6xl mx-auto p-4 lg:p-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 lg:px-8">
+        {/* Blog Banner */}
         <div className="relative w-full h-64 lg:h-96 mb-6">
           <img
             src={blog.image}
             alt={blog.title}
-            className="w-full h-full object-cover rounded-lg shadow-md"
+            className="w-full h-full object-cover rounded-lg shadow-lg"
           />
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">{blog.title}</h1>
-          <p className="text-gray-500 mt-2">{blog.date}</p>
-        </div>
+        {/* Blog Header */}
+        <header className="mb-6">
+          <h1 className="text-4xl font-extrabold text-gray-800 mb-2">{blog.title}</h1>
+          <p className="text-gray-500 text-sm">Published on {blog.date}</p>
+        </header>
 
-        <div className="prose max-w-none text-gray-700 leading-relaxed">
-          {content.map((item: BlogContent, index: number) => (
-            <div key={index} className="mb-6">
-              <h3 className="text-xl font-semibold">{item.heading}</h3>
-              <p>{item.paragraph}</p>
-            </div>
+        {/* Blog Content */}
+        <article className="prose max-w-none text-gray-700 leading-relaxed">
+          {blog.content.map((section, index) => (
+            <section key={index} className="mb-8">
+              <h2 className="text-2xl font-semibold mb-2">{section.heading}</h2>
+              <p>{section.paragraph}</p>
+            </section>
           ))}
-        </div>
+        </article>
 
+        {/* Back to Blogs Link */}
         <div className="mt-8">
           <Link
             href="/blog"
-            className="inline-block bg-primary text-white px-6 py-2 rounded-lg shadow-md hover:bg-primary-dark transition"
+            className="inline-block bg-primary text-white px-4 py-2 rounded-lg shadow-md hover:bg-primary-dark transition"
           >
             Back to Blogs
           </Link>
         </div>
       </div>
-      <Footer image={""} contact_details={""} />
+      <Footer image={""} />
     </>
   );
 }

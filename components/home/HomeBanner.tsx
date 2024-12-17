@@ -6,9 +6,9 @@ import Link from "next/link";
 // Define prop types for data
 interface HomeBannerProps {
   image: any;
-  title:string;
-  tagline:string;
-  imageTitle:string,
+  title: string;
+  tagline: string;
+  imageTitle: string,
   data?: {
     opacity?: number;
     textColor?: string;
@@ -17,7 +17,7 @@ interface HomeBannerProps {
 }
 
 const HomeBanner: React.FC<HomeBannerProps> = ({
- tagline,
+  tagline,
   imageTitle,
   title,
   image,
@@ -33,7 +33,7 @@ const HomeBanner: React.FC<HomeBannerProps> = ({
     >
       {/* Ensure image is passed correctly */}
       <Image
-        src={image} 
+        src={image}
         alt="Banner Image"
         title={imageTitle}
         priority

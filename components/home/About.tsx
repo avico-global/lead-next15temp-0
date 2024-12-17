@@ -3,16 +3,25 @@ import FullContainer from '../common/FullContainer'
 import Container from '../common/Container'
 import Image from 'next/image'
 import Link from 'next/link'
+import MarkdownIt from "markdown-it";
+
+
+const md = new MarkdownIt();
 
 interface AboutProps {
 
-  image:any,
+  image: any,
+  imagePath: any;
+  about_company1: any;
   data?: {
     titleFontSize?: number;
   };
 }
 
-const About: React.FC<AboutProps> = ({ image, data }) => {
+
+const About: React.FC<AboutProps> = ({ imagePath, about_company1, image, data }) => {
+  const content = md.render(about_company1?.value || "");
+
   return (
     <FullContainer className="relative ">
       <Container>
@@ -36,7 +45,7 @@ const About: React.FC<AboutProps> = ({ image, data }) => {
               <h2 className="capitalize   font-semibold text-blue-500">
                 Cleaning Service
               </h2>
-              <h1
+              {/* <h1
                 style={{ fontSize: data?.titleFontSize || 46 }} // Use dynamic font size or fallback
                 className="font-bold capitalize max-w-screen-md"
               >
@@ -51,7 +60,12 @@ const About: React.FC<AboutProps> = ({ image, data }) => {
 
               <p className="mb-8 text-gray-600">
                 Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae, viva la vida
-              </p>
+              </p> */}
+
+              <div
+                className="my-6"
+                dangerouslySetInnerHTML={{ __html: `${content.slice(0, 1000)}` }}
+              />
 
               {/* Contact Us Button */}
               <div className="">
@@ -70,7 +84,7 @@ const About: React.FC<AboutProps> = ({ image, data }) => {
           {/* Right section with image */}
           <div className="relative -mt-28">
             <Image
-              src="/img/clean1.jpg"
+              src={`${imagePath}/${about_company1?.file_name}`}
               width="500"
               height="400"
               alt="Banner Image"

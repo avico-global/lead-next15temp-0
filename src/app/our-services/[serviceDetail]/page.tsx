@@ -15,14 +15,14 @@ export default function Home() {
       <Navbar/>
       <HomeBanner
         image={""}
-        title={"Cleaning Service"}
-        paragraph={" Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihilimpedit quo minus id quod maxime placeat facere, viva la vida penci."} imageTitle={""}      />
+        title={"Cleaning Service"} tagline={""} imageTitle={""}        
+        />
       <Services />
-      <About />
+      <About image={undefined} imagePath={undefined} about_company1={undefined} />
       <CleaningService image={""} />
       <FeauturedService image={""} />
       <WhyChoose image={""} />
-      <Footer image={""} contact_details={""} />
+      <Footer image={""}  />
     </>
   );
 }

@@ -8,34 +8,89 @@ import AboutBanner from "../../../components/about/AboutBanner";
 import Head from "next/head";
 import JsonLd from "../../../components/json/JsonLd";
 import GoogleTagManager from "../../../lib/GoogleTagManager";
+import { callBackendApi, getDomain, getImagePath } from "../../../lib/myFun";
 
 interface BlogProps {
-  logo: any; // Replace 'any' with a more specific type if needed
-  blog_list: any[]; // Replace 'any' with a more specific type if needed
-  imagePath: string;
-  project_id: string | null;
-  categories: any; // Replace 'any' with a more specific type if needed
   domain: string;
-  meta: any; // Replace 'any' with a more specific type if needed
-  about_me: any; // Replace 'any' with a more specific type if needed
+  imagePath: string | null;
+  meta: any;
+  logo: any;
+  blog_list: any[];
+  categories: any;
   copyright: string;
-  contact_details: any; // Replace 'any' with a more specific type if needed
-  banner: any; // Replace 'any' with a more specific type if needed
+  about_me: any;
+  contact_details: any;
+  banner: any;
+  about_company: any;
+  about_company1: any;
+  nav_type: any;
+  footer_type: any;
+  tag_list: any;
+  all_data: any;
 }
 
-const Blog: React.FC<BlogProps> = ({
-  logo,
-  blog_list = [], // Default to an empty array
-  imagePath,
-  project_id,
-  categories,
-  domain,
-  meta,
-  about_me,
-  copyright,
-  contact_details,
-  banner,
-}) => {
+async function fetchBlogData(): Promise<BlogProps> {
+  const domain = getDomain(process.env.NEXT_PUBLIC_HOST || "");
+  const meta = await callBackendApi({ domain, type: "meta_home" });
+  const logo = await callBackendApi({ domain, type: "logo" });
+  const favicon = await callBackendApi({ domain, type: "favicon" });
+  const blog_list = await callBackendApi({ domain, type: "blog_list" });
+  const categories = await callBackendApi({ domain, type: "categories" });
+  const contact_details = await callBackendApi({ domain, type: "contact_details" });
+  const about_me = await callBackendApi({ domain, type: "about_me" });
+  const about_company = await callBackendApi({ domain, type: "about_company" });
+  const about_company1 = await callBackendApi({ domain, type: "about_company1" });
+  const copyright = await callBackendApi({ domain, type: "copyright" });
+  const banner = await callBackendApi({ domain, type: "banner" });
+  const layout = await callBackendApi({ domain, type: "layout" });
+  const tag_list = await callBackendApi({ domain, type: "tag_list" });
+  const nav_type = await callBackendApi({ domain, type: "nav_type" });
+  const footer_type = await callBackendApi({ domain, type: "footer_type" });
+  const all_data = await callBackendApi({ domain, type: "" });
+
+  const project_id = logo?.data?.[0]?.project_id || null;
+  const imagePath = await getImagePath(project_id, domain);
+
+  return {
+    domain,
+    imagePath,
+    meta: meta?.data?.[0]?.value || null,
+    logo: logo?.data?.[0] || null,
+    blog_list: blog_list?.data?.[0]?.value || [],
+    categories: categories?.data?.[0]?.value || null,
+    copyright: copyright?.data?.[0]?.value || null,
+    about_me: about_me?.data?.[0] || null,
+    contact_details: contact_details?.data?.[0]?.value,
+    banner: banner?.data?.[0] || null,
+    about_company: about_company?.data?.[0] || null,
+    about_company1: about_company1?.data?.[0] || null,
+    nav_type: nav_type?.data?.[0]?.value || {},
+    footer_type: footer_type?.data?.[0]?.value || {},
+    tag_list: tag_list?.data?.[0]?.value || null,
+    all_data,
+  };
+}
+
+export default async function Blog() {
+  const {
+    domain,
+    imagePath,
+    meta,
+    logo,
+    blog_list,
+    categories,
+    copyright,
+    about_me,
+    contact_details,
+    banner,
+    about_company,
+    about_company1,
+    nav_type,
+    footer_type,
+    tag_list,
+    all_data,
+  } = await fetchBlogData();
+
   return (
     <>
       <Head>
@@ -74,8 +129,10 @@ const Blog: React.FC<BlogProps> = ({
         />
       </Head>
 
-      <Navbar />
-      <AboutBanner title={"Our Blog"} image={""} />
+      <Navbar
+         logo={`${imagePath}/${logo?.file_name}`}
+      />
+      <AboutBanner title="Our Blog" image="" />
 
       <FullContainer className="mx-auto max-w-[1300px]">
         <div className="px-4 py-8">
@@ -83,22 +140,20 @@ const Blog: React.FC<BlogProps> = ({
             <div className="grid lg:grid-cols-3 gap-6">
               {blog_list.map((item) => (
                 <div key={item.id} className="rounded-lg p-4">
-                  {/* Image at the top */}
                   <div className="w-full mb-4">
                     <img
-                      src={item.image || "/default-image.jpg"} // Provide a fallback image
-                      alt={item.title || "Blog Image"}
+                      src={item.image ? `${imagePath}/${item.image}` : "/no-image.png" }
+                      alt={item.title }
                       className="rounded-lg object-cover w-full h-64"
                     />
                   </div>
-                  {/* Content below the image */}
                   <div className="text-start">
                     <h2 className="text-2xl font-semibold mb-2">
                       {item.title || "Untitled Blog"}
                     </h2>
                     <p className="text-gray-500 mb-4">{item.date || "Unknown Date"}</p>
                     <Link
-                      href={`/blog/${item.id}`}
+                      href={`/blog/${item.title}`}
                       className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
                     >
                       Read Blog
@@ -113,7 +168,7 @@ const Blog: React.FC<BlogProps> = ({
         </div>
       </FullContainer>
 
-      <Footer image={""} />
+      <Footer image="" />
 
       <JsonLd
         data={{
@@ -138,7 +193,7 @@ const Blog: React.FC<BlogProps> = ({
               "@type": "ItemList",
               url: `http://${domain}`,
               name: "blog",
-              itemListElement: blog_list?.map((blog, index) => ({
+              itemListElement: blog_list?.map((blog: { article_category: { name: any }; key: any; title: any }, index: number) => ({
                 "@type": "ListItem",
                 position: index + 1,
                 item: {
@@ -153,8 +208,4 @@ const Blog: React.FC<BlogProps> = ({
       />
     </>
   );
-};
-
-
-
-export default Blog;
+}

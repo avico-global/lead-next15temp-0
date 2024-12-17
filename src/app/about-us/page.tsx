@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import Navbar from "../../../components/common/Navbar";
 import AboutBanner from "../../../components/about/AboutBanner";
@@ -10,84 +9,117 @@ import Footer from "../../../components/common/Footer";
 import Head from "next/head";
 import GoogleTagManager from "../../../lib/GoogleTagManager";
 import { callBackendApi, getDomain, getImagePath } from "../../../lib/myFun";
+import JsonLd from "../../../components/json/JsonLd";
 
 interface AboutProps {
+  domain: string;
+  imagePath: string | null;
+  meta: any;
   logo: any;
   blog_list: any[];
-  imagePath: string | null;
-  project_id: string | null;
   categories: any;
-  domain: string;
-  meta: any;
-  about_me: any;
   copyright: string;
+  about_me: any;
   contact_details: any;
   banner: any;
   about_company: any;
+  about_company1: any;
+  nav_type: any;
+  footer_type: any;
+  tag_list: any;
+  all_data: any;
 }
 
+// Fetch data on the server
+async function fetchAboutData(): Promise<AboutProps> {
+  const domain = getDomain(process.env.NEXT_PUBLIC_HOST || "");
 
+  // Call APIs to fetch all required data
+  const [
+    meta,
+    logo,
+    favicon,
+    blog_list,
+    categories,
+    contact_details,
+    about_me,
+    about_company,
+    about_company1,
+    copyright,
+    banner,
+    layout,
+    tag_list,
+    nav_type,
+    footer_type,
+    all_data,
+  ] = await Promise.all([
+    callBackendApi({ domain, type: "meta_home" }),
+    callBackendApi({ domain, type: "logo" }),
+    callBackendApi({ domain, type: "favicon" }),
+    callBackendApi({ domain, type: "blog_list" }),
+    callBackendApi({ domain, type: "categories" }),
+    callBackendApi({ domain, type: "contact_details" }),
+    callBackendApi({ domain, type: "about_me" }),
+    callBackendApi({ domain, type: "about_company" }),
+    callBackendApi({ domain, type: "about_company1" }),
+    callBackendApi({ domain, type: "copyright" }),
+    callBackendApi({ domain, type: "banner" }),
+    callBackendApi({ domain, type: "layout" }),
+    callBackendApi({ domain, type: "tag_list" }),
+    callBackendApi({ domain, type: "nav_type" }),
+    callBackendApi({ domain, type: "footer_type" }),
+    callBackendApi({ domain, type: "" }),
+  ]);
 
-export async function fetchAboutData(
-  query: Record<string, string | undefined>
-): Promise<AboutProps> {
-  const domain = getDomain(query?.host || "");
-
-  // Simulate project_id retrieval
-  const project_id = "675a8a205afaa8130e5095ea"; // Replace with actual logic if needed
-
-
-  const logo = await callBackendApi({ domain, type: "logo" });
-  const blog_list = await callBackendApi({ domain, type: "blog_list" });
-  const categories = await callBackendApi({ domain, type: "categories" });
-  const contact_details = await callBackendApi({ domain, type: "contact_details" });
-  const about_me = await callBackendApi({ domain, type: "about_me" });
-  const copyright = await callBackendApi({ domain, type: "copyright" });
-  const meta = await callBackendApi({ domain, type: "meta_about" });
-  const banner = await callBackendApi({ domain, type: "banner" });
-  const about_company = await callBackendApi({ domain, type: "about_company" });
-  let imagePath = null;
-  imagePath = await getImagePath(project_id, domain);
+  // Get project ID and image path
+  const project_id = logo?.data?.[0]?.project_id || null;
+  const imagePath = await getImagePath(project_id, domain);
 
   return {
     domain,
     imagePath,
-    about_company,
-    project_id,
-    logo: logo ? logo[0] : null, // Safely access first element or set to null
-    blog_list: blog_list?.[0]?.value || null,
-    categories: categories?.[0]?.value || null,
-    meta: meta?.[0]?.value || null,
-    copyright: copyright?.[0]?.value || null,
-    about_me: about_me?.[0] || null,
-    banner: banner?.[0] || null,
-    contact_details: contact_details?.[0]?.value || null,
+    meta: meta?.data?.[0]?.value || null,
+    logo: logo?.data?.[0] || null,
+    blog_list: blog_list?.data?.[0]?.value || [],
+    categories: categories?.data?.[0]?.value || null,
+    copyright: copyright?.data?.[0]?.value || null,
+    about_me: about_me?.data?.[0] || null,
+    contact_details: contact_details?.data?.[0]?.value,
+    banner: banner?.data?.[0] || null,
+    about_company: about_company?.data?.[0] || null,
+    about_company1: about_company1?.data?.[0] || null,
+    nav_type: nav_type?.data?.[0]?.value || {},
+    footer_type: footer_type?.data?.[0]?.value || {},
+    tag_list: tag_list?.data?.[0]?.value || null,
+    all_data,
   };
 }
 
-// Main Page Component
-const About = async ({
-  searchParams,
-}: {
-  searchParams: Record<string, string | undefined>;
-}) => {
+// Page Component
+export default async function Home() {
   const {
     domain,
     imagePath,
-    project_id,
+    meta,
     logo,
     blog_list,
     categories,
-    meta,
-    about_me,
     copyright,
+    about_me,
     contact_details,
     banner,
-  } = await fetchAboutData(searchParams);
+    about_company,
+    about_company1,
+    nav_type,
+    footer_type,
+    tag_list,
+    all_data,
+  } = await fetchAboutData();
 
   return (
     <>
       <Head>
+        {/* Meta Tags */}
         <meta charSet="UTF-8" />
         <title>{meta?.title}</title>
         <meta name="description" content={meta?.description} />
@@ -104,6 +136,7 @@ const About = async ({
           name="google-site-verification"
           content="zbriSQArMtpCR3s5simGqO5aZTDqEZZi9qwinSrsRPk"
         />
+        {/* Favicon Links */}
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -123,14 +156,43 @@ const About = async ({
         />
       </Head>
 
-      <Navbar />
+      {/* Components */}
+      <Navbar logo={`${imagePath}/${logo?.file_name}`} />
       <AboutBanner title={"About Us"} image="" />
       <OurJourney />
       <OurNumbers />
       <Choose image="" />
       <Footer image="" />
+
+      {/* Structured Data */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": `http://${domain}/#website`,
+              url: `http://${domain}/`,
+              name: domain,
+              description: meta?.description,
+              inLanguage: "en-US",
+              publisher: {
+                "@type": "Organization",
+                "@id": `http://${domain}`,
+              },
+            },
+            // {
+            //   "@type": "BreadcrumbList",
+            //   itemListElement: breadcrumbs.map((breadcrumb, index) => ({
+            //     "@type": "ListItem",
+            //     position: index + 1,
+            //     name: breadcrumb.label,
+            //     item: `http://${domain}${breadcrumb.url}`,
+            //   })),
+            // },
+          ],
+        }}
+      />
     </>
   );
-};
-
-export default About;
+}
